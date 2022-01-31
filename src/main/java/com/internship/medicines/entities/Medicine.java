@@ -4,6 +4,10 @@ import lombok.Data;
 
 import javax.persistence.*;
 
+/**
+ * Simple java class that represents Medicine.
+ */
+
 @Data
 @Entity
 @Table(name = "Medicine")
@@ -15,7 +19,7 @@ public class Medicine {
     private String name;
 
     @Column(name = "price")
-    private float price;
+    private double price;
 
     @Column(name = "compound")
     private String compound;

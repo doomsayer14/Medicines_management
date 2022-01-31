@@ -5,11 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+
+/**
+ * Repository interface for {@link Medicine} class.
+ */
 public interface MedicineRepository extends JpaRepository<Medicine, Long> {
 
-    List<Medicine> findMedicinesByPriceIsLessThan(float price);
+    List<Medicine> findMedicinesByPriceIsLessThan(double price);
 
-    List<Medicine> findMedicinesByPriceIsGreaterThan(float price);
+    List<Medicine> findMedicinesByPriceIsGreaterThan(double price);
 
     List<Medicine> findMedicinesByName(String name);
 

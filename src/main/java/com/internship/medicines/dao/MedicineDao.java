@@ -24,27 +24,19 @@ public class MedicineDao {
         return medicineRepository.findMedicinesByName(name);
     }
 
-    public List<Medicine> findMedicinesByPriceIsLessThan(float price) {
+    public List<Medicine> findMedicinesByPriceIsLessThan(double price) {
         return medicineRepository.findMedicinesByPriceIsLessThan(price);
     }
 
-    public List<Medicine> findMedicinesByPriceIsGreaterThan(float price) {
+    public List<Medicine> findMedicinesByPriceIsGreaterThan(double price) {
         return medicineRepository.findMedicinesByPriceIsGreaterThan(price);
     }
 
-    public Medicine saveMedicine(Medicine medicine) {
+    public Medicine save(Medicine medicine) {
         return medicineRepository.save(medicine);
     }
 
-    public void deleteById(Long id) {
+    public void delete(Long id) {
         medicineRepository.deleteById(id);
     }
-
-    public void updateById(Long id, Medicine medicine) {
-        Medicine medicine1 = medicineRepository.getById(id);
-        if (medicine1 != null) {
-            medicineRepository.save(medicine);
-        }
-    }
-
 }
