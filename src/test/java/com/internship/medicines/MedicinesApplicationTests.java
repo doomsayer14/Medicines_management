@@ -1,75 +1,160 @@
-package com.internship.medicines.controllers;
+package com.internship.medicines;
 
+import com.internship.medicines.dao.MedicineDao;
 import com.internship.medicines.dto.MedicineDto;
 import com.internship.medicines.entities.Medicine;
+import com.internship.medicines.mappers.MedicineToMedicineDtoMapper;
 import com.internship.medicines.services.MedicineService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-@Controller
-@RequestMapping("/medicines")
-public class MedicineController {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-    @Autowired
-    private MedicineService medicineService;
+@RunWith(MockitoJUnitRunner.class)
+public class MedicinesServiceTests {
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<MedicineDto>> readAllMedicine(
-            @RequestParam(required = false, defaultValue = "99999.0") Double lessThenPrice,
-            @RequestParam(required = false, defaultValue = "0.0") Double moreThenPrice,
-            @RequestParam(required = false) String name
-    ) {
-        List<MedicineDto> medicineDtoList = medicineService.readAllMedicine
-                (lessThenPrice, moreThenPrice, name);
-        if (medicineDtoList.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return ResponseEntity.ok(medicineDtoList);
+
+    @InjectMocks
+    MedicineService medicineService;
+
+    @Mock
+    MedicineDao medicineDao;
+
+    MedicineToMedicineDtoMapper mapper = new MedicineToMedicineDtoMapper();
+
+    private static Medicine createMedicine(Long id) {
+        Medicine medicine = new Medicine();
+        medicine.setId(id);
+        medicine.setName("SomeName");
+        medicine.setPrice(322.8);
+        medicine.setCompound("some compound");
+        medicine.setContraindications("some contraindications");
+        medicine.setTermsOfUse("some terms of use");
+        return medicine;
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<MedicineDto> createMedicine(@RequestBody Medicine medicine) {
-        if (medicine != null) {
-            return new ResponseEntity<>(medicineService.createMedicine(medicine), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    private static Medicine createMedicine
+            (Long id, String name, Double price, String comp, String contr, String terms) {
+        Medicine medicine = new Medicine();
+        medicine.setId(id);
+        medicine.setName(name);
+        medicine.setPrice(price);
+        medicine.setCompound(comp);
+        medicine.setContraindications(contr);
+        medicine.setTermsOfUse(terms);
+        return medicine;
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/{id}")
-    @ResponseBody
-    public ResponseEntity<MedicineDto> readMedicine(@RequestBody @PathVariable Long id) {
-        MedicineDto medicineDto = medicineService.readMedicine(id);
-        if (medicineDto != null) {
-            return ResponseEntity.ok(medicineDto);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    private static List<Medicine> initMedicineList() {
+        List<Medicine> medicineList = new ArrayList<>();
+        medicineList.add(createMedicine(1L, "Nurofen",
+                11.11, "first compound", "first contr", "first terms"));
+
+        medicineList.add(createMedicine(2L, "Mukoltin",
+                22.22, "second compound", "second contr", "second terms"));
+
+        medicineList.add(createMedicine(3L, "Evkasolin",
+                33.33, "third compound", "third contr", "third terms"));
+
+        return medicineList;
     }
 
-    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/{id}")
-    @ResponseBody
-    public ResponseEntity<MedicineDto> updateMedicine(@RequestBody Medicine medicine, @PathVariable Long id) {
-        if (medicineService.readMedicine(id) == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        MedicineDto medicineDto = medicineService.updateMedicine(medicine, id);
-        if (medicineDto != null) {
-            return ResponseEntity.ok(medicineDto);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @Test
+    public void shouldReturnEmptyListWhenMorePriceIsGreaterThenLessPrice() {
+        when((findCommon(medicineDao.findMedicinesByPriceIsLessThan(10.0),
+                medicineDao.findMedicinesByPriceIsGreaterThan(100.0))))
+                .thenReturn(Collections.emptyList());
+
+        List<MedicineDto> result = medicineService
+                .readAllMedicine(10.0, 100.0, null);
+        assertEquals(Collections.emptyList(), result);
     }
 
-    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/{id}")
-    @ResponseBody
-    public ResponseEntity<HttpStatus> deleteMedicine(@RequestBody @PathVariable Long id) {
-        medicineService.deleteMedicine(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    private static List<Medicine> findCommon(List<Medicine> list1, List<Medicine> list2) {
+        List<Medicine> resultList = new ArrayList<>();
+        for (Medicine medicine1 : list1) {
+            for (Medicine medicine2 : list2) {
+                if (medicine1.equals(medicine2)) {
+                    resultList.add(medicine1);
+                }
+            }
+        }
+        if (resultList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return resultList;
     }
+
+    @Test
+    public void shouldFindMedicineById() {
+        Long id = 1L;
+        Medicine expectedMedicine = createMedicine(id);
+        when(medicineDao.findById(id)).thenReturn(expectedMedicine);
+
+        MedicineDto result = medicineService.readMedicine(id);
+        assertEquals(mapper.mapEntity(expectedMedicine), result);
+        verify(medicineDao, times(1)).findById(id);
+    }
+
+    @Test
+    public void shouldFindAllMedicines() {
+        List<Medicine> expectedList = initMedicineList();
+        when(medicineDao.findAll()).thenReturn(expectedList);
+
+        List<MedicineDto> result = medicineService.readAllMedicine(99999.0, 0.0, null);
+        assertEquals(mapper.mapList(expectedList), result);
+        verify(medicineDao, times(1)).findAll();
+    }
+
+    @Test
+    public void shouldFindMedicinesByPriceIsLessThan() {
+        List<Medicine> expectedList = new ArrayList<>();
+        expectedList.add(createMedicine(1L, "Nurofen",
+                11.11, "first compound", "first contr", "first terms"));
+        expectedList.add(createMedicine(2L, "Mukoltin",
+                22.22, "second compound", "second contr", "second terms"));
+        when(medicineDao.findMedicinesByPriceIsLessThan(23.0)).thenReturn(expectedList);
+
+        List<MedicineDto> result = medicineService.readAllMedicine(23.0, 0.0, null);
+        assertEquals(mapper.mapList(expectedList), result);
+        verify(medicineDao, times(1)).findMedicinesByPriceIsLessThan(23.0);
+    }
+
+    @Test
+    public void shouldFindMedicinesByPriceIsGreaterThan() {
+        List<Medicine> expectedList = new ArrayList<>();
+        expectedList.add(createMedicine(2L, "Mukoltin",
+                22.22, "second compound", "second contr", "second terms"));
+        expectedList.add(createMedicine(3L, "Evkasolin",
+                33.33, "third compound", "third contr", "third terms"));
+        when(medicineDao.findMedicinesByPriceIsGreaterThan(21.0)).thenReturn(expectedList);
+
+        List<MedicineDto> result = medicineService.readAllMedicine(99999.0, 21.0, null);
+        assertEquals(mapper.mapList(expectedList), result);
+        verify(medicineDao, times(1)).findMedicinesByPriceIsGreaterThan(21.0);
+    }
+
+    @Test
+    public void shouldFindMedicinesByName() {
+        List<Medicine> expectedList = new ArrayList<>();
+        expectedList.add(createMedicine(1L, "Nurofen",
+                11.11, "first compound", "first contr", "first terms"));
+        when(medicineDao.findMedicinesByName("Nurofen")).thenReturn(expectedList);
+
+        List<MedicineDto> result = medicineService.readAllMedicine(99999.0, 0.0, "Nurofen");
+        assertEquals(mapper.mapList(expectedList), result);
+        verify(medicineDao, times(1)).findMedicinesByName("Nurofen");
+    }
+
+
 }
