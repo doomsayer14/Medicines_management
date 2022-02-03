@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 /**
- * Simple java class that represents Medicine.
+ * Java class that represents Medicine.
  */
 
 @Data
@@ -15,6 +15,7 @@ public class Medicine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "name")
     private String name;
 
