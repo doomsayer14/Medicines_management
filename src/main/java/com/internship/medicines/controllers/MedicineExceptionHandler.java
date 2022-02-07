@@ -10,9 +10,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalTime;
 
-@ControllerAdvice(annotations = Controller.class)
-public class MedicineExceptionController {
+/**
+ * This class will handle all the exceptions, connected with medicines
+ */
 
+@ControllerAdvice(annotations = Controller.class)
+public class MedicineExceptionHandler {
+
+    /**
+     * When {@link MedicineNotFoundException} occurs, this method handles it.
+     * @param e MedicineNotFoundException
+     * @return {@link ResponseEntity} with {@link Response} and {@link HttpStatus} code NOT_FOUND
+     */
     @ExceptionHandler(MedicineNotFoundException.class)
     public ResponseEntity<Response> handleMedicineNotFoundException(MedicineNotFoundException e) {
         Response response = new Response(e.getMessage(), LocalTime.now(),HttpStatus.NOT_FOUND );

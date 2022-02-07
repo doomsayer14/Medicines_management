@@ -2,10 +2,16 @@ package com.internship.medicines.mappers;
 
 import com.internship.medicines.dto.MedicineDto;
 import com.internship.medicines.entities.Medicine;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is needed to convert {@link Medicine} to {@link MedicineDto} and back.
+ */
+
+@Component
 public class MedicineToMedicineDtoMapper {
     public MedicineDto mapEntity(Medicine medicine) {
         MedicineDto medicineDto = new MedicineDto();

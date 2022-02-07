@@ -41,9 +41,6 @@ public class MedicineController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<MedicineDto> createMedicine(@RequestBody MedicineDto medicineDto) {
-        if (medicineDto == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(medicineService.createMedicine(medicineDto), HttpStatus.CREATED);
     }
 
