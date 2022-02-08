@@ -15,7 +15,4 @@ public class MedicineNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public MedicineNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

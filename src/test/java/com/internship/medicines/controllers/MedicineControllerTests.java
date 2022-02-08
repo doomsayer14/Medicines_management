@@ -20,8 +20,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class MedicineControllerTests {
 
     @InjectMocks

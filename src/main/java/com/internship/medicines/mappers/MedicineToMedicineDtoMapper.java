@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * This class is needed to convert {@link Medicine} to {@link MedicineDto} and back.
+ * Also, it can convert List<Medicine> to List<MedicineDto>.
  */
 
 @Component

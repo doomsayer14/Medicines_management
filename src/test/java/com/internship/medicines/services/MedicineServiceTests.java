@@ -22,8 +22,9 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class MedicineServiceTests {
 
     @InjectMocks
@@ -155,6 +156,39 @@ public class MedicineServiceTests {
 
         medicineService.createMedicine(mapper.mapEntity(MEDICINE));
 
+        verify(medicineDao).save(MEDICINE);
+    }
+
+    @Test
+    public void testUpdateMedicineThrowMedicineNotFoundExceptions() {
+        when(medicineDao.existsById(id)).thenReturn(false);
+
+        assertThrows(MedicineNotFoundException.class, () -> medicineService.updateMedicine(MEDICINE, id));
+
+        verify(medicineDao).existsById(id);
+        verify(medicineDao, never()).save(MEDICINE);
+    }
+
+    @Test
+    public void testUpdateMedicine() {
+        when(medicineDao.existsById(id)).thenReturn(true);
+        when(medicineDao.save(MEDICINE)).thenReturn(MEDICINE);
+        when(medicineDao.findById(id)).thenReturn(MEDICINE);
+        when(mapper.mapEntity(MEDICINE)).thenReturn(MEDICINE_DTO);
+
+        medicineService.updateMedicine(MEDICINE, id);
+        verify(medicineDao).existsById(id);
+        verify(medicineDao).save(MEDICINE);
+    }
+
+    @Test
+    public void testUpdateMedicineReturnNull() {
+        when(medicineDao.existsById(id)).thenReturn(true);
+        when(medicineDao.save(MEDICINE)).thenReturn(MEDICINE);
+        when(medicineDao.findById(id)).thenReturn(null);
+
+        medicineService.updateMedicine(MEDICINE, id);
+        verify(medicineDao).existsById(id);
         verify(medicineDao).save(MEDICINE);
     }
 
