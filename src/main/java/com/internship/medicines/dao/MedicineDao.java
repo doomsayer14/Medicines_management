@@ -23,7 +23,7 @@ public class MedicineDao {
     private MedicineRepository medicineRepository;
 
     @Autowired
-    private EntityManager em;
+    private EntityManager entityManager;
 
     /**
      * Checks whether database has a medicine with specified id
@@ -64,7 +64,7 @@ public class MedicineDao {
      * @return List with the result of query with arguments
      */
     public List<Medicine> findAll(double lessThenPrice, double moreThenPrice, String name) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Medicine> cq = cb.createQuery(Medicine.class);
 
         Root<Medicine> medicine = cq.from(Medicine.class);
@@ -73,7 +73,7 @@ public class MedicineDao {
         Predicate namePredicate = cb.like(medicine.get("name"), "%" + name + "%");
         cq.where(lessThenPricePredicate, moreThenPricePredicate, namePredicate);
 
-        TypedQuery<Medicine> query = em.createQuery(cq);
+        TypedQuery<Medicine> query = entityManager.createQuery(cq);
         return query.getResultList();
     }
 

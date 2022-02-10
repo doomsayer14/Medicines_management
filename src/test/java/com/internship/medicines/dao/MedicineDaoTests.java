@@ -31,9 +31,9 @@ public class MedicineDaoTests {
     @Mock
     MedicineRepository medicineRepository;
 
-    @Mock EntityManager em;
-    @Mock CriteriaBuilder cb;
-    @Mock CriteriaQuery<Medicine> cq;
+    @Mock EntityManager entityManager;
+    @Mock CriteriaBuilder criteriaBuilder;
+    @Mock CriteriaQuery<Medicine> medicineCriteriaQuery;
     @Mock Root<Medicine> medicine;
 
     @Mock Predicate lessThenPricePredicate;
@@ -111,18 +111,18 @@ public class MedicineDaoTests {
     //findAll(...)
     @Test
     public void testFindAllWithParams() {
-        when(em.getCriteriaBuilder()).thenReturn(cb);
-        when(cb.createQuery(Medicine.class)).thenReturn(cq);
+        when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(Medicine.class)).thenReturn(medicineCriteriaQuery);
 
-        when(cq.from(Medicine.class)).thenReturn(medicine);
-        when(cb.lessThanOrEqualTo(medicine.get("price"), LESS_THEN_PRICE))
+        when(medicineCriteriaQuery.from(Medicine.class)).thenReturn(medicine);
+        when(criteriaBuilder.lessThanOrEqualTo(medicine.get("price"), LESS_THEN_PRICE))
                 .thenReturn(lessThenPricePredicate);
-        when(cb.greaterThanOrEqualTo(medicine.get("price"), MORE_THEN_PRICE))
+        when(criteriaBuilder.greaterThanOrEqualTo(medicine.get("price"), MORE_THEN_PRICE))
                 .thenReturn(moreThenPricePredicate);
-        when(cb.like(medicine.get("name"), "%" + NAME + "%")).thenReturn(namePredicate);
-        cq.where(lessThenPricePredicate, moreThenPricePredicate, namePredicate);
+        when(criteriaBuilder.like(medicine.get("name"), "%" + NAME + "%")).thenReturn(namePredicate);
+        medicineCriteriaQuery.where(lessThenPricePredicate, moreThenPricePredicate, namePredicate);
 
-        when(em.createQuery(cq)).thenReturn(query);
+        when(entityManager.createQuery(medicineCriteriaQuery)).thenReturn(query);
         List<Medicine> expectedList = query.getResultList();
 
         List<Medicine> resultList = medicineDao.findAll(LESS_THEN_PRICE, MORE_THEN_PRICE, NAME);
