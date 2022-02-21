@@ -2,15 +2,11 @@ package com.internship.medicines.dao;
 
 import com.internship.medicines.entities.Medicine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.*;
 
 /**
  * DAO class for {@link Medicine}.
@@ -49,10 +45,10 @@ public class MedicineDao {
      * Finds and returns all medicines from database. If there are no medicines
      * in database, returns EmptyList
      *
-     * @return List of all medicines from database
+     * @return Page {@link Page} of all medicines from database
      */
-    public List<Medicine> findAll() {
-        return medicineRepository.findAll();
+    public Page<Medicine> findAll(Pageable pageable) {
+        return medicineRepository.findAll(pageable);
     }
 
     /**
@@ -61,20 +57,12 @@ public class MedicineDao {
      * @param lessThenPrice for medicines whose price is less or equal to specified
      * @param moreThenPrice for medicines whose price is greater or equal to specified
      * @param name          for medicines whose name contains specified String
-     * @return List with the result of query with arguments
+     * @return Page {@link Page} with the result of query with arguments
      */
-    public List<Medicine> findAll(double lessThenPrice, double moreThenPrice, String name) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Medicine> cq = cb.createQuery(Medicine.class);
-
-        Root<Medicine> medicine = cq.from(Medicine.class);
-        Predicate lessThenPricePredicate = cb.lessThanOrEqualTo(medicine.get("price"), lessThenPrice);
-        Predicate moreThenPricePredicate = cb.greaterThanOrEqualTo(medicine.get("price"), moreThenPrice);
-        Predicate namePredicate = cb.like(medicine.get("name"), "%" + name + "%");
-        cq.where(lessThenPricePredicate, moreThenPricePredicate, namePredicate);
-
-        TypedQuery<Medicine> query = entityManager.createQuery(cq);
-        return query.getResultList();
+    public Page<Medicine> findAll(double lessThenPrice, double moreThenPrice, String name, Pageable pageable) {
+        return medicineRepository
+                .findMedicineByPriceLessThanAndPriceGreaterThanAndAndNameContaining
+                        (lessThenPrice, moreThenPrice, name, pageable);
     }
 
     /**

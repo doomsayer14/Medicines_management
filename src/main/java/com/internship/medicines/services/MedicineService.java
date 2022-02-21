@@ -6,14 +6,13 @@ import com.internship.medicines.dao.MedicineDao;
 import com.internship.medicines.exceptions.MedicineNotFoundException;
 import com.internship.medicines.mappers.MedicineToMedicineDtoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
 
 /**
  * Service class for {@link Medicine}.
- * Contains business logic realization needed for controllers.
+ * Contains business logic realization needed for {@link com.internship.medicines.controllers.MedicineController}.
  */
 
 @Service
@@ -35,26 +34,27 @@ public class MedicineService {
      * @throws MedicineNotFoundException - when there are no elements in database or
      * query didn't find any medicines with specified parameters
      */
-    public List<MedicineDto> readAllMedicine(Double lessThenPrice, Double moreThenPrice, String name) {
+    public Page<Medicine> readAllMedicine
+    (Double lessThenPrice, Double moreThenPrice, String name, Pageable pageable) {
         //when lessThenPrice < moreThenPrice, result of their queries will not have general elements
         if (lessThenPrice < moreThenPrice) {
-            throw new MedicineNotFoundException("Wrong parameters: lessThenPrice < moreThenPrice");
+            return Page.empty();
         }
-        List<Medicine> resultList;
+        Page<Medicine> resultPage;
         //if no arguments
         if (lessThenPrice == 9999.0 && moreThenPrice == 0.0 && name.equals("")) {
-            resultList = medicineDao.findAll();
-            if (resultList.isEmpty()) {
+            resultPage = medicineDao.findAll(pageable);
+            if (resultPage.isEmpty()) {
                 throw new MedicineNotFoundException("No elements in database");
             }
-            return medicineMapper.mapList(resultList);
+            return resultPage;
         }
-
-        resultList = medicineDao.findAll(lessThenPrice, moreThenPrice, name);
-        if (resultList.isEmpty()) {
+        //not default arguments
+        resultPage = medicineDao.findAll(lessThenPrice, moreThenPrice, name, pageable);
+        if (resultPage.isEmpty()) {
             throw new MedicineNotFoundException("No such elements with this params");
         }
-        return medicineMapper.mapList(resultList);
+        return resultPage;
     }
 
     /**
@@ -87,18 +87,41 @@ public class MedicineService {
 
     /**
      * Updates medicine if exists
-     * @param medicine updated medicine, that should replace old one
+     * @param newMedicine updated medicine, that should replace old one
      * @param id ID of particular medicine
      * @return updated medicine, or null when something went wrong
      * @throws MedicineNotFoundException - when there is no medicine with specified id
      */
-    public MedicineDto updateMedicine(Medicine medicine, Long id) {
+    public MedicineDto updateMedicine(Medicine newMedicine, Long id) {
         if (!medicineDao.existsById(id)) {
             throw new MedicineNotFoundException("Don't have any medicine with id " + id + ".");
         }
-        medicineDao.save(medicine);
-        if (medicineDao.findById(id) == medicine) {
-            return medicineMapper.mapEntity(medicine);
+        Medicine oldMedicine = medicineDao.findById(id);
+        if (oldMedicine.equals(newMedicine)) {
+            return medicineMapper.mapEntity(newMedicine);
+        }
+
+        //in case we want to update only one field, we just take old ones from oldMedicine
+        newMedicine.setId(id);
+        if (newMedicine.getName() == null) {
+            newMedicine.setName(oldMedicine.getName());
+        }
+        if (newMedicine.getPrice() == 0) {
+            newMedicine.setPrice(oldMedicine.getPrice());
+        }
+        if (newMedicine.getCompound() == null) {
+            newMedicine.setCompound(oldMedicine.getCompound());
+        }
+        if (newMedicine.getContraindications() == null) {
+            newMedicine.setContraindications(oldMedicine.getContraindications());
+        }
+        if (newMedicine.getTermsOfUse() == null) {
+            newMedicine.setTermsOfUse(oldMedicine.getTermsOfUse());
+        }
+
+        medicineDao.save(newMedicine);
+        if (medicineDao.findById(id).equals(newMedicine)) {
+            return medicineMapper.mapEntity(newMedicine);
         }
         return null;
     }

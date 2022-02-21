@@ -1,6 +1,7 @@
 package com.internship.medicines.entities;
 
 import lombok.Data;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -10,7 +11,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "Medicine")
+@Table(name = "Medicine", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 public class Medicine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

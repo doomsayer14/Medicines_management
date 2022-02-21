@@ -8,10 +8,11 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,9 @@ public class MedicineControllerTests {
 
     @Mock
     MedicineService medicineService;
+
+    @Mock
+    Pageable pageable;
 
     private static final MedicineDto MEDICINE_DTO = createMedicineDto(1L, "Nurofen",
             11.11, "first compound", "first contr", "first terms");
@@ -55,18 +59,18 @@ public class MedicineControllerTests {
         return medicine;
     }
 
-    private static List<MedicineDto> initMedicineList() {
-        List<MedicineDto> medicineList = new ArrayList<>();
-        medicineList.add(createMedicineDto(1L, "Nurofen",
+    private static Page<Medicine> initMedicinePage() {
+        List<Medicine> medicineList = new ArrayList<>();
+        medicineList.add(createMedicine(1L, "Nurofen",
                 11.11, "first compound", "first contr", "first terms"));
 
-        medicineList.add(createMedicineDto(2L, "Mukoltin",
+        medicineList.add(createMedicine(2L, "Mukoltin",
                 22.22, "second compound", "second contr", "second terms"));
 
-        medicineList.add(createMedicineDto(3L, "Evkasolin",
+        medicineList.add(createMedicine(3L, "Evkasolin",
                 33.33, "third compound", "third contr", "third terms"));
 
-        return medicineList;
+        return new PageImpl<>(medicineList);
     }
 
     private static MedicineDto createMedicineDto
@@ -83,15 +87,15 @@ public class MedicineControllerTests {
 
     @Test
     public void testReadAllMedicine() {
-        List<MedicineDto> expectedList = initMedicineList();
-        when(medicineService.readAllMedicine(LESS_THEN_PRICE, MORE_THEN_PRICE, NAME))
-                .thenReturn(expectedList);
+        Page<Medicine> expectedPage = initMedicinePage();
+        when(medicineService.readAllMedicine(LESS_THEN_PRICE, MORE_THEN_PRICE, NAME, pageable))
+                .thenReturn(expectedPage);
 
-        ResponseEntity<List<MedicineDto>> responseEntity = medicineController.readAllMedicine
-                (LESS_THEN_PRICE, MORE_THEN_PRICE, NAME);
+        ResponseEntity<Page<Medicine>> responseEntity = medicineController.readAllMedicine
+                (LESS_THEN_PRICE, MORE_THEN_PRICE, NAME, pageable);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(expectedList, responseEntity.getBody());
+        assertEquals(expectedPage, responseEntity.getBody());
     }
 
     @Test

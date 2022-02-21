@@ -6,6 +6,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -31,16 +34,8 @@ public class MedicineDaoTests {
     @Mock
     MedicineRepository medicineRepository;
 
-    @Mock EntityManager entityManager;
-    @Mock CriteriaBuilder criteriaBuilder;
-    @Mock CriteriaQuery<Medicine> medicineCriteriaQuery;
-    @Mock Root<Medicine> medicine;
-
-    @Mock Predicate lessThenPricePredicate;
-    @Mock Predicate moreThenPricePredicate;
-    @Mock Predicate namePredicate;
-
-    @Mock TypedQuery<Medicine> query;
+    @Mock
+    Pageable pageable;
 
     private static final Medicine MEDICINE = createMedicine(1L, "Nurofen",
             11.11, "first compound", "first contr", "first terms");
@@ -61,6 +56,20 @@ public class MedicineDaoTests {
         medicine.setContraindications(contr);
         medicine.setTermsOfUse(terms);
         return medicine;
+    }
+
+    private static Page<Medicine> initMedicinePage() {
+        List<Medicine> medicineList = new ArrayList<>();
+        medicineList.add(createMedicine(1L, "Nurofen",
+                11.11, "first compound", "first contr", "first terms"));
+
+        medicineList.add(createMedicine(2L, "Mukoltin",
+                22.22, "second compound", "second contr", "second terms"));
+
+        medicineList.add(createMedicine(3L, "Evkasolin",
+                33.33, "third compound", "third contr", "third terms"));
+
+        return new PageImpl<>(medicineList);
     }
 
     private static List<Medicine> initMedicineList() {
@@ -99,35 +108,30 @@ public class MedicineDaoTests {
 
     @Test
     public void testFindAll() {
-        List<Medicine> expectedList = initMedicineList();
-        when(medicineDao.findAll()).thenReturn(expectedList);
+        Page<Medicine> expectedPage = initMedicinePage();
+        when(medicineDao.findAll(LESS_THEN_PRICE, MORE_THEN_PRICE, NAME, pageable)).thenReturn(expectedPage);
 
-        List<Medicine> resultList = medicineRepository.findAll();
+        Page<Medicine> resultPage = medicineRepository
+                .findMedicineByPriceLessThanAndPriceGreaterThanAndAndNameContaining
+                        (LESS_THEN_PRICE, MORE_THEN_PRICE, NAME, pageable);
 
-        assertEquals(expectedList, resultList);
-        verify(medicineRepository).findAll();
+        assertEquals(expectedPage, resultPage);
+        verify(medicineRepository)
+                .findMedicineByPriceLessThanAndPriceGreaterThanAndAndNameContaining
+                        (LESS_THEN_PRICE, MORE_THEN_PRICE, NAME, pageable);
+
     }
 
     //findAll(...)
     @Test
     public void testFindAllWithParams() {
-        when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
-        when(criteriaBuilder.createQuery(Medicine.class)).thenReturn(medicineCriteriaQuery);
+        Page<Medicine> expectedPage = initMedicinePage();
+        when(medicineDao.findAll(pageable)).thenReturn(expectedPage);
 
-        when(medicineCriteriaQuery.from(Medicine.class)).thenReturn(medicine);
-        when(criteriaBuilder.lessThanOrEqualTo(medicine.get("price"), LESS_THEN_PRICE))
-                .thenReturn(lessThenPricePredicate);
-        when(criteriaBuilder.greaterThanOrEqualTo(medicine.get("price"), MORE_THEN_PRICE))
-                .thenReturn(moreThenPricePredicate);
-        when(criteriaBuilder.like(medicine.get("name"), "%" + NAME + "%")).thenReturn(namePredicate);
-        medicineCriteriaQuery.where(lessThenPricePredicate, moreThenPricePredicate, namePredicate);
+        Page<Medicine> resultPage = medicineRepository.findAll(pageable);
 
-        when(entityManager.createQuery(medicineCriteriaQuery)).thenReturn(query);
-        List<Medicine> expectedList = query.getResultList();
-
-        List<Medicine> resultList = medicineDao.findAll(LESS_THEN_PRICE, MORE_THEN_PRICE, NAME);
-
-        assertEquals(expectedList, resultList);
+        assertEquals(expectedPage, resultPage);
+        verify(medicineRepository).findAll(pageable);
     }
 
     @Test
