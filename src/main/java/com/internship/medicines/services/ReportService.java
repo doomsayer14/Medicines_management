@@ -50,6 +50,6 @@ public class ReportService {
         if (reportFormat.equalsIgnoreCase("pdf")) {
             JasperExportManager.exportReportToPdfFile(jasperPrint, PATH + "/reportAll.pdf");
         }
-        return "Reports generated in " + PATH;
+        return PATH;
     }
 }
