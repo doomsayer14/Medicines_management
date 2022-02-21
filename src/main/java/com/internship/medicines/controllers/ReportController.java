@@ -16,7 +16,6 @@ import java.io.File;
 /**
  * Additional controller for reports.
  * JasperReports was used inside the service logic.
- * Usually returns .pdf
  */
 
 @Api(value = "ReportController")
@@ -27,6 +26,12 @@ public class ReportController {
     @Autowired
     ReportService reportService;
 
+    /**
+     * Finds all medicines and then generate report with them.
+     * @param format expected format of the generated file (.pdf or .html)
+     * @param pageable pagination
+     * @return generates report and returns response code 201 or 400
+     */
     @SneakyThrows
     @GetMapping
     public ResponseEntity<HttpStatus> reportFindAll(
