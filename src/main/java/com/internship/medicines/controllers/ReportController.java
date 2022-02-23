@@ -1,7 +1,6 @@
 package com.internship.medicines.controllers;
 
 import com.internship.medicines.services.ReportService;
-import io.swagger.annotations.Api;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +17,7 @@ import java.io.File;
  * JasperReports was used inside the service logic.
  */
 
-@Api(value = "ReportController")
+//@Api(value = "ReportController")
 @RestController
 @RequestMapping("/report")
 public class ReportController {
