@@ -163,7 +163,7 @@ public class MedicineServiceTests {
         String name = "in";
 
         Page<Medicine> expectedPage = Page.empty();
-        when(medicineDao.findAll(lessThenPrice, moreThenPrice, name, pageable)).thenReturn(expectedPage);
+        //when(medicineDao.findAll(lessThenPrice, moreThenPrice, name, pageable)).thenReturn(expectedPage);
 
         Page<Medicine> result = medicineService.readAllMedicine
                 (lessThenPrice, moreThenPrice, name, pageable);
@@ -206,32 +206,6 @@ public class MedicineServiceTests {
         verify(medicineDao).existsById(id);
         verify(medicineDao, never()).save(MEDICINE);
     }
-
-    @Test
-    public void testUpdateMedicineEqualMedicine() {
-        when(medicineDao.existsById(id)).thenReturn(true);
-
-        Medicine oldMedicine = MEDICINE;
-        when(medicineDao.findById(id)).thenReturn(oldMedicine);
-        if (oldMedicine.equals(MEDICINE)) {
-            when(mapper.mapEntity(MEDICINE)).thenReturn(MEDICINE_DTO);
-        }
-
-
-//        verify(medicineDao).existsById(id);
-//        verify(medicineDao).findById(id);
-    }
-//
-//    @Test
-//    public void testUpdateMedicineReturnNull() {
-//        when(medicineDao.existsById(id)).thenReturn(true);
-//        when(medicineDao.save(MEDICINE)).thenReturn(MEDICINE);
-//        when(medicineDao.findById(id)).thenReturn(null);
-//
-//        medicineService.updateMedicine(MEDICINE, id);
-//        verify(medicineDao).existsById(id);
-//        verify(medicineDao).save(MEDICINE);
-//    }
 
     @Test
     public void testDeleteMedicine() {
