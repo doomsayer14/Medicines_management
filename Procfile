@@ -1,0 +1,1 @@
+web: java -jar target/medicines-1.0.jar
