@@ -16,7 +16,6 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class Response {
 
-
     private String message;
     private LocalTime time;
     private HttpStatus status;

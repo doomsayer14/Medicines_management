@@ -5,7 +5,6 @@ import com.internship.medicines.entities.Medicine;
 import com.internship.medicines.dao.MedicineDao;
 import com.internship.medicines.exceptions.MedicineNotFoundException;
 import com.internship.medicines.mappers.MedicineToMedicineDtoMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class MedicineService {
 
-    @Autowired
-    private MedicineDao medicineDao;
+    private final MedicineDao medicineDao;
 
-    @Autowired
-    private MedicineToMedicineDtoMapper medicineMapper;
+    private final MedicineToMedicineDtoMapper medicineMapper;
+
+    public MedicineService(MedicineDao medicineDao, MedicineToMedicineDtoMapper medicineMapper) {
+        this.medicineDao = medicineDao;
+        this.medicineMapper = medicineMapper;
+    }
 
     /**
      * Finds medicines with specified parameters.

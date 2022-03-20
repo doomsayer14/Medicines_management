@@ -15,11 +15,11 @@ import javax.persistence.EntityManager;
 @Repository
 public class MedicineDao {
 
-    @Autowired
-    private MedicineRepository medicineRepository;
+    private final MedicineRepository medicineRepository;
 
-    @Autowired
-    private EntityManager entityManager;
+    public MedicineDao(MedicineRepository medicineRepository) {
+        this.medicineRepository = medicineRepository;
+    }
 
     /**
      * Checks whether database has a medicine with specified id

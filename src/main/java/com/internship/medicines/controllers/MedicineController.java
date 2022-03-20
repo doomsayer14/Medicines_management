@@ -30,8 +30,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/medicines")
 public class MedicineController {
 
-    @Autowired
-    private MedicineService medicineService;
+    private final MedicineService medicineService;
+
+    public MedicineController(MedicineService medicineService) {
+        this.medicineService = medicineService;
+    }
 
     @ApiOperation(value = "Get all medicines from database",
             notes = "Returns Page of medicines",
