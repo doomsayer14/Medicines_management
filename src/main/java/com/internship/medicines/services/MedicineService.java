@@ -1,5 +1,7 @@
 package com.internship.medicines.services;
 
+import com.internship.medicines.auth.AuthService;
+import com.internship.medicines.auth.UserRole;
 import com.internship.medicines.dto.MedicineDto;
 import com.internship.medicines.entities.Medicine;
 import com.internship.medicines.dao.MedicineDao;
@@ -7,7 +9,9 @@ import com.internship.medicines.exceptions.MedicineNotFoundException;
 import com.internship.medicines.mappers.MedicineToMedicineDtoMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service class for {@link Medicine}.
@@ -21,9 +25,12 @@ public class MedicineService {
 
     private final MedicineToMedicineDtoMapper medicineMapper;
 
-    public MedicineService(MedicineDao medicineDao, MedicineToMedicineDtoMapper medicineMapper) {
+    private final AuthService authService;
+
+    public MedicineService(MedicineDao medicineDao, MedicineToMedicineDtoMapper medicineMapper, AuthService authService) {
         this.medicineDao = medicineDao;
         this.medicineMapper = medicineMapper;
+        this.authService = authService;
     }
 
     /**
@@ -68,6 +75,9 @@ public class MedicineService {
      * @return created medicine
      */
     public MedicineDto createMedicine(MedicineDto medicineDto) {
+        if (!authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
         return medicineMapper.mapEntity(medicineDao.save(medicineMapper.mapDto(medicineDto)));
     }
 
@@ -95,6 +105,9 @@ public class MedicineService {
      * @throws MedicineNotFoundException - when there is no medicine with specified id
      */
     public MedicineDto updateMedicine(Medicine newMedicine, Long id) {
+        if (!authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
         if (!medicineDao.existsById(id)) {
             throw new MedicineNotFoundException("Don't have any medicine with id " + id + ".");
         }
@@ -135,6 +148,9 @@ public class MedicineService {
      * @param id ID of particular medicine
      */
     public void deleteMedicine(Long id) {
+        if (!authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
         if (medicineDao.existsById(id)) {
             medicineDao.delete(id);
         }
