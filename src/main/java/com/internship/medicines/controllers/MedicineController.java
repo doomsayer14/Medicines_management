@@ -5,6 +5,7 @@ import com.internship.medicines.entities.Medicine;
 import com.internship.medicines.services.MedicineService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,13 +29,10 @@ import org.springframework.web.bind.annotation.*;
         consumes = "application/json")
 @RestController
 @RequestMapping("/medicines")
+@RequiredArgsConstructor
 public class MedicineController {
 
     private final MedicineService medicineService;
-
-    public MedicineController(MedicineService medicineService) {
-        this.medicineService = medicineService;
-    }
 
     @ApiOperation(value = "Get all medicines from database",
             notes = "Returns Page of medicines",

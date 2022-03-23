@@ -7,6 +7,7 @@ import com.internship.medicines.entities.Medicine;
 import com.internship.medicines.dao.MedicineDao;
 import com.internship.medicines.exceptions.MedicineNotFoundException;
 import com.internship.medicines.mappers.MedicineToMedicineDtoMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
  */
 
 @Service
+@RequiredArgsConstructor
 public class MedicineService {
 
     private final MedicineDao medicineDao;
@@ -26,12 +28,6 @@ public class MedicineService {
     private final MedicineToMedicineDtoMapper medicineMapper;
 
     private final AuthService authService;
-
-    public MedicineService(MedicineDao medicineDao, MedicineToMedicineDtoMapper medicineMapper, AuthService authService) {
-        this.medicineDao = medicineDao;
-        this.medicineMapper = medicineMapper;
-        this.authService = authService;
-    }
 
     /**
      * Finds medicines with specified parameters.
